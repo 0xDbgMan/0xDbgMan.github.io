@@ -6,7 +6,7 @@ tags: [red-team, initial-access, phishing, spearphishing, html-smuggling, evilgi
 description: "The complete red team guide to Initial Access: Payload Development (DLL Sideloading, Shellcode Loaders, Syscalls), HTML Smuggling, Phishing (QR Code Quishing, Teams Phishing), AitM/MFA Bypass (Evilginx, Device Code Phishing), Password Spraying, Exploiting Public-Facing Applications, Vishing, Physical Access (Rubber Ducky, Bash Bunny), Supply Chain attacks  with real-world APT case studies."
 toc: true
 image:
-  path: /assets/img/initial-access/initial-access.svg
+  path: /assets/img/initial-access/initial-access.png
   alt: Red Team Initial Access Kill Chain
 ---
 
