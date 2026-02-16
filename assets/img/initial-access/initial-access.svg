@@ -1,0 +1,141 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0a0a0f;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#1a0a2e;stop-opacity:1"/>
+    </linearGradient>
+    <linearGradient id="redGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ff0040;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#ff4060;stop-opacity:1"/>
+    </linearGradient>
+    <linearGradient id="cyanGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#00d4ff;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#00ffcc;stop-opacity:1"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="redGlowFilter">
+      <feGaussianBlur stdDeviation="6" result="coloredBlur"/>
+      <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Grid pattern -->
+  <g opacity="0.05" stroke="#00d4ff">
+    <line x1="0" y1="0" x2="0" y2="630" stroke-width="0.5"/>
+    <line x1="60" y1="0" x2="60" y2="630" stroke-width="0.5"/>
+    <line x1="120" y1="0" x2="120" y2="630" stroke-width="0.5"/>
+    <line x1="180" y1="0" x2="180" y2="630" stroke-width="0.5"/>
+    <line x1="240" y1="0" x2="240" y2="630" stroke-width="0.5"/>
+    <line x1="300" y1="0" x2="300" y2="630" stroke-width="0.5"/>
+    <line x1="360" y1="0" x2="360" y2="630" stroke-width="0.5"/>
+    <line x1="420" y1="0" x2="420" y2="630" stroke-width="0.5"/>
+    <line x1="480" y1="0" x2="480" y2="630" stroke-width="0.5"/>
+    <line x1="540" y1="0" x2="540" y2="630" stroke-width="0.5"/>
+    <line x1="600" y1="0" x2="600" y2="630" stroke-width="0.5"/>
+    <line x1="660" y1="0" x2="660" y2="630" stroke-width="0.5"/>
+    <line x1="720" y1="0" x2="720" y2="630" stroke-width="0.5"/>
+    <line x1="780" y1="0" x2="780" y2="630" stroke-width="0.5"/>
+    <line x1="840" y1="0" x2="840" y2="630" stroke-width="0.5"/>
+    <line x1="900" y1="0" x2="900" y2="630" stroke-width="0.5"/>
+    <line x1="960" y1="0" x2="960" y2="630" stroke-width="0.5"/>
+    <line x1="1020" y1="0" x2="1020" y2="630" stroke-width="0.5"/>
+    <line x1="1080" y1="0" x2="1080" y2="630" stroke-width="0.5"/>
+    <line x1="1140" y1="0" x2="1140" y2="630" stroke-width="0.5"/>
+    <line x1="1200" y1="0" x2="1200" y2="630" stroke-width="0.5"/>
+    <line x1="0" y1="60" x2="1200" y2="60" stroke-width="0.5"/>
+    <line x1="0" y1="120" x2="1200" y2="120" stroke-width="0.5"/>
+    <line x1="0" y1="180" x2="1200" y2="180" stroke-width="0.5"/>
+    <line x1="0" y1="240" x2="1200" y2="240" stroke-width="0.5"/>
+    <line x1="0" y1="300" x2="1200" y2="300" stroke-width="0.5"/>
+    <line x1="0" y1="360" x2="1200" y2="360" stroke-width="0.5"/>
+    <line x1="0" y1="420" x2="1200" y2="420" stroke-width="0.5"/>
+    <line x1="0" y1="480" x2="1200" y2="480" stroke-width="0.5"/>
+    <line x1="0" y1="540" x2="1200" y2="540" stroke-width="0.5"/>
+  </g>
+
+  <!-- Central lock icon -->
+  <g transform="translate(600, 200)" filter="url(#redGlowFilter)">
+    <!-- Lock body -->
+    <rect x="-40" y="-10" width="80" height="60" rx="8" fill="none" stroke="#ff0040" stroke-width="2.5"/>
+    <!-- Lock shackle -->
+    <path d="M-22,-10 L-22,-35 Q-22,-55 0,-55 Q22,-55 22,-35 L22,-10" fill="none" stroke="#ff0040" stroke-width="2.5"/>
+    <!-- Keyhole -->
+    <circle cx="0" cy="18" r="8" fill="#ff0040" opacity="0.8"/>
+    <rect x="-3" y="22" width="6" height="16" rx="2" fill="#ff0040" opacity="0.8"/>
+  </g>
+
+  <!-- Title -->
+  <text x="600" y="310" text-anchor="middle" font-family="Consolas, monospace" font-size="42" font-weight="bold" fill="url(#redGlow)" filter="url(#glow)">INITIAL ACCESS</text>
+  <text x="600" y="348" text-anchor="middle" font-family="Consolas, monospace" font-size="18" fill="#8892b0" letter-spacing="6">THE ART OF GETTING IN</text>
+
+  <!-- Attack vector icons row -->
+  <!-- Phishing -->
+  <g transform="translate(150, 450)">
+    <rect x="-55" y="-30" width="110" height="60" rx="6" fill="none" stroke="#ff0040" stroke-width="1.5" opacity="0.6"/>
+    <text x="0" y="-8" text-anchor="middle" font-family="Consolas, monospace" font-size="18" fill="#ff0040">@</text>
+    <text x="0" y="14" text-anchor="middle" font-family="Consolas, monospace" font-size="10" fill="#ccd6f6">PHISHING</text>
+  </g>
+
+  <!-- AitM -->
+  <g transform="translate(330, 450)">
+    <rect x="-55" y="-30" width="110" height="60" rx="6" fill="none" stroke="#ff0040" stroke-width="1.5" opacity="0.6"/>
+    <text x="0" y="-8" text-anchor="middle" font-family="Consolas, monospace" font-size="18" fill="#00d4ff">&#x21C4;</text>
+    <text x="0" y="14" text-anchor="middle" font-family="Consolas, monospace" font-size="10" fill="#ccd6f6">AitM / MFA</text>
+  </g>
+
+  <!-- Payload -->
+  <g transform="translate(510, 450)">
+    <rect x="-55" y="-30" width="110" height="60" rx="6" fill="none" stroke="#ff0040" stroke-width="1.5" opacity="0.6"/>
+    <text x="0" y="-8" text-anchor="middle" font-family="Consolas, monospace" font-size="18" fill="#ff4060">&#x25B6;</text>
+    <text x="0" y="14" text-anchor="middle" font-family="Consolas, monospace" font-size="10" fill="#ccd6f6">PAYLOADS</text>
+  </g>
+
+  <!-- Credentials -->
+  <g transform="translate(690, 450)">
+    <rect x="-55" y="-30" width="110" height="60" rx="6" fill="none" stroke="#ff0040" stroke-width="1.5" opacity="0.6"/>
+    <text x="0" y="-8" text-anchor="middle" font-family="Consolas, monospace" font-size="18" fill="#00ffcc">&#x26BF;</text>
+    <text x="0" y="14" text-anchor="middle" font-family="Consolas, monospace" font-size="10" fill="#ccd6f6">CREDENTIALS</text>
+  </g>
+
+  <!-- Exploit -->
+  <g transform="translate(870, 450)">
+    <rect x="-55" y="-30" width="110" height="60" rx="6" fill="none" stroke="#ff0040" stroke-width="1.5" opacity="0.6"/>
+    <text x="0" y="-8" text-anchor="middle" font-family="Consolas, monospace" font-size="18" fill="#ff0040">&#x2622;</text>
+    <text x="0" y="14" text-anchor="middle" font-family="Consolas, monospace" font-size="10" fill="#ccd6f6">EXPLOITS</text>
+  </g>
+
+  <!-- Physical -->
+  <g transform="translate(1050, 450)">
+    <rect x="-55" y="-30" width="110" height="60" rx="6" fill="none" stroke="#ff0040" stroke-width="1.5" opacity="0.6"/>
+    <text x="0" y="-8" text-anchor="middle" font-family="Consolas, monospace" font-size="18" fill="#ffa500">&#x2B50;</text>
+    <text x="0" y="14" text-anchor="middle" font-family="Consolas, monospace" font-size="10" fill="#ccd6f6">PHYSICAL</text>
+  </g>
+
+  <!-- Connecting lines from lock to vectors -->
+  <g stroke="#ff0040" stroke-width="0.8" opacity="0.3">
+    <line x1="600" y1="260" x2="150" y2="420"/>
+    <line x1="600" y1="260" x2="330" y2="420"/>
+    <line x1="600" y1="260" x2="510" y2="420"/>
+    <line x1="600" y1="260" x2="690" y2="420"/>
+    <line x1="600" y1="260" x2="870" y2="420"/>
+    <line x1="600" y1="260" x2="1050" y2="420"/>
+  </g>
+
+  <!-- MITRE ATT&CK label -->
+  <text x="600" y="560" text-anchor="middle" font-family="Consolas, monospace" font-size="12" fill="#495670">MITRE ATT&amp;CK TA0001 | Red Team Tradecraft</text>
+
+  <!-- Bottom accent line -->
+  <rect x="200" y="590" width="800" height="2" rx="1" fill="url(#redGlow)" opacity="0.4"/>
+
+  <!-- Corner accents -->
+  <path d="M20,20 L50,20 M20,20 L20,50" stroke="#ff0040" stroke-width="1.5" opacity="0.4"/>
+  <path d="M1180,20 L1150,20 M1180,20 L1180,50" stroke="#ff0040" stroke-width="1.5" opacity="0.4"/>
+  <path d="M20,610 L50,610 M20,610 L20,580" stroke="#ff0040" stroke-width="1.5" opacity="0.4"/>
+  <path d="M1180,610 L1150,610 M1180,610 L1180,580" stroke="#ff0040" stroke-width="1.5" opacity="0.4"/>
+</svg>
