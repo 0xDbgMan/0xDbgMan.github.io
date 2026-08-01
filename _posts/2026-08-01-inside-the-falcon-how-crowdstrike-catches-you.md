@@ -10,15 +10,15 @@ image:
   alt: "Inside the Falcon How CrowdStrike Catches You"
 ---
 
-# Section 1  The Components
+## Section 1  The Components
 
-## Kernel-mode
+### Kernel-mode
 
 lets see whats Driver There used
 
 ![image.png](/assets/img/csfalcon/image.png)
 
-## user-mode
+### user-mode
 
 they used
 
@@ -27,9 +27,9 @@ they used
 
 ![image.png](/assets/img/csfalcon/image-1.png)
 
-## csagent.sys Reverse
+### csagent.sys Reverse
 
-### import Dll From `csagent.sys`
+#### import Dll From `csagent.sys`
 
 ![image.png](/assets/img/csfalcon/image-2.png)
 
@@ -48,7 +48,7 @@ we can see here 5 important sys
 5- cspcm4.sys ⇒ CrowdStrike’s own Pinned Code Module; 6 imports used for internal
 `anti-tamper`and sensor code integrity protection.
 
-## Reverse main `csagent.sys`
+### Reverse main `csagent.sys`
 
 Lets see For Example `PsSetCreateProcessNotifyRoutineEx`
 
@@ -76,7 +76,7 @@ anyway the Callback Functio register in n`sub_1400C3310` ⇒ CS_ProcessNotifyCal
 
 good we now got some Spicy function lest first analysis all in `sub_1400C3320` than Deep Dive in our Function.
 
-### Process Creation
+#### Process Creation
 
 ![*process-creation branch: non-NULL CreateInfo (a4) → sub_1400C39A8 allocates the internal tracking record.*](/assets/img/csfalcon/image-8.png)
 
@@ -86,7 +86,7 @@ a4 is a `CreateInfo` if not Null That’s Mean process creation
 
 `sub_1400C39A8` do a allocate for internal process tracking record and Fill in the data for the new process and Return to V17
 
-### Process Termination
+#### Process Termination
 
 sub_1400C3BEC ⇒ CS_GetExistingProcessRecord
 
@@ -100,7 +100,7 @@ sub_1400C3BEC ⇒ CS_GetExistingProcessRecord
 - `PsGetProcessExitStatus` stores the process exit code into the record.
 - `PsGetProcessExitTime` stores the exact termination timestamp.
 
-### Process Blocking
+#### Process Blocking
 
 `sub_1400C3DA8` ⇒ CS_ReleaseProcessRecord
 
@@ -110,7 +110,7 @@ sub_1400C3BEC ⇒ CS_GetExistingProcessRecord
 
 *the kill mechanism: a negative NTSTATUS written to CreateInfo+64 (CreationStatus) blocks the process from ever starting.*
 
-### Event Dispatch
+#### Event Dispatch
 
 ![*event dispatch: acquire context, compute event-type ID (1=create, 2=terminate), call the detection/dispatch path.*](/assets/img/csfalcon/image-11.png)
 
@@ -121,7 +121,7 @@ sub_1400C3BEC ⇒ CS_GetExistingProcessRecord
 - `sub_140377450` main detection/event dispatch; takes process record, event type, and CreateInfo, writes verdict to v18.
 - `sub_140378824` likely telemetry submission or event completion callback.
 
-## Deep Dive
+### Deep Dive
 
 Now lets Jump into theses 2 function
 
@@ -157,7 +157,7 @@ so This function retrieves the process image path via two strategies: fast path 
 
 `2- sub_140377450(CS_DetectionDispatch)` ⇒ Detection logic (full treatment in **Section 8**)
 
-### Sensor & Engine Checks
+#### Sensor & Engine Checks
 
 - `CS_IsSensorEnabled()` if non-zero, sensor is disabled; process passes through unchecked.
 - `if (!g_DetectionEngine)` if null, engine not yet initialized (early boot). Logs error 10 and exits. All early-boot processes pass through unmonitored.
@@ -169,7 +169,7 @@ so This function retrieves the process image path via two strategies: fast path 
 
 *the early gates: CS_IsSensorEnabled, g_DetectionEngine, g_SensorConfig+56, CS_AcquireEventBuffer any failure passes the process through unchecked.*
 
-### **Creation Path**
+#### **Creation Path**
 
 - `CS_AllocPoolBuffer(552)` allocates 552 bytes for the creation event structure.
 - `CS_BuildCreationEvent` builds the full event: **PID, parent PID, image path, command line, signing, reputation**, file flags. (Section 2.)
@@ -185,7 +185,7 @@ so This function retrieves the process image path via two strategies: fast path 
 
 *the creation path: 552-byte alloc → CS_BuildCreationEvent → vtable selectors 72/6/10, then 5186 for full rule matching when hash and signature both resolved.*
 
-# Section 2 Building the Event (`CS_BuildCreationEvent`)
+## Section 2 Building the Event (`CS_BuildCreationEvent`)
 
 *Binary: **CSAgent.sys** · Function: `CS_BuildCreationEvent` @ `0x14037889C`*
 
@@ -200,7 +200,7 @@ CS_BuildCreationEvent(a1 = event buffer (552 bytes),
                       a4, a5)
 ```
 
-### 1. vtable / object setup
+#### 1. vtable / object setup
 
 First it wires the event up as a COM-like object writes vtable/descriptor pointers into the header:
 
@@ -219,7 +219,7 @@ So the event is a polymorphic object with **4 interface pointers**. `g_Detection
 
 *CS_BuildCreationEvent wires the event as a COM-like object: 4 interface pointers + type ID 0x80002F3 ("process create").*
 
-### 2.  pull the core fields from the process record
+#### 2.  pull the core fields from the process record
 
 `a2` is the internal process tracking record (the one `CS_AllocProcessRecord` built). This block copies the interesting stuff into the event:
 
@@ -239,7 +239,7 @@ Ref-count bump first (`CS_RefProcessRecord`)  the event holds a reference so the
 
 *refcount bump, then the core fields copied from the process record into the event: PID, parent PID, image path, command line, flags.*
 
-### 3.  token / security context
+#### 3.  token / security context
 
 ```c
 v10 = CS_GetProcessSecurityInfo(a2);           // grabs the token object
@@ -264,7 +264,7 @@ Selector **8** = signing/certificate lookup, **9** = reputation/hash. Both keyed
 
 *two engine vtable calls: selector 8 = signer/certificate chain, selector 9 = reputation/hash. Failure zeroes the field; event still ships.*
 
-### 4.  PID as a string
+#### 4.  PID as a string
 
 ```c
 *(a1 + 282) = 18;                              // UNICODE_STRING max len
@@ -274,7 +274,7 @@ RtlIntegerToUnicodeString(*(a2 + 64), 10, a1 + 280);  // PID -> decimal string
 
 Renders the numeric PID into a decimal Unicode string stored inline at `+256`. Cloud rules / telemetry like the PID both as int and text.
 
-### 5.  extra string fields (SID string, integrity string)
+#### 5.  extra string fields (SID string, integrity string)
 
 ```c
 sub_140168140(a1 + 488, &v25);   // -> +488 (object) / +496 (byte flag)   err 11
@@ -284,7 +284,7 @@ sub_140167E00(0, *(a2 + 72), a1 + 512, 0);     // record  -> +512           err 
 
 CrowdStrike never *fails* event construction on a missing sub-field  it zeroes it and moves on. Telemetry is best-effort.
 
-### 6.  file/transaction flags (a nice one)
+#### 6.  file/transaction flags (a nice one)
 
 ```c
 v15 = *(a3 + 40);                              // FileObject from CreateInfo
@@ -302,7 +302,7 @@ if ( v15 ) {
 
 *file/transaction flags at +520: bit 1 = image launched inside a TxF transaction (process doppelgänging), bits 2/4 = FILE_OBJECT state.*
 
-### 7.  final enrichment + name validation
+#### 7.  final enrichment + name validation
 
 ```c
 if ( *(a1+424) && v10 && (v16 = sub_140025560(), v17(…, v10, a1+296, a1+304, v16, &v26)) )
@@ -324,7 +324,7 @@ If we have both a token and a resolved SID, a final engine call stores a context
 
 *final engine call stores a verdict/context handle at +528, then deep-copies the process short name so the event owns its own string.*
 
-### Event layout recovered
+#### Event layout recovered
 
 | Offset | Field |
 | --- | --- |
@@ -348,7 +348,7 @@ If we have both a token and a resolved SID, a final engine call stores a context
 
 `CS_BuildCreationEvent` is the sensor’s full **process-creation telemetry record**: identity (PID/parent/name), provenance (image path, command line, TxF flag), trust (signer, reputation, SID/integrity)  everything the cloud rules need.
 
-# Section 3 The Kernel Eyes (every callback source)
+## Section 3 The Kernel Eyes (every callback source)
 
 *Binary: **CSAgent.sys***
 
@@ -365,11 +365,11 @@ csagent.sys registers **six** kernel notification sources. This is the entire �
 
 Plus **ETW output**: `EtwRegister` / `EtwWriteTransfer`  telemetry to `CSFalconService.exe`. All funnel into the same event object + engine.
 
-## 1. Process (recap)
+### 1. Process (recap)
 
 Covered in Sections 1–2. One-line walk: `CS_ProcessNotifyCallback` (0x1400C3310) → `CS_ProcessEventHandler` (0x1400C3320) → `CS_DetectionDispatch` (0x140377450) → `CS_BuildCreationEvent` (0x14037889C) → rule engine selector 72. **Collected:** PID, PPID, image path, command line, SID/integrity, signer, reputation, TxF flag. **Kill:** negative NTSTATUS → `CreateInfo->CreationStatus` (+64) → process aborted.
 
-## 2. Thread creation (remote-thread / injection detection)
+### 2. Thread creation (remote-thread / injection detection)
 
 Where CrowdStrike catches **CreateRemoteThread**, thread hijacking, injected APC-style threads.
 
@@ -414,7 +414,7 @@ CS_ThreadCreateCallback(ProcessId, ThreadId, Create):
 
 *the 360-byte thread event (‘Tes1’) built and submitted with ProcessId, ThreadId and the resolved start address.*
 
-## 3. Image / DLL / driver load
+### 3. Image / DLL / driver load
 
 **Walk:** `CS_RegisterImageCallback` (0x1400B13E0) → `CS_LoadImageCallback` (0x1400B03A0).
 
@@ -450,7 +450,7 @@ CS_LoadImageCallback(FullImageName, ProcessId, ImageInfo):
 
 *kernel images take a first-class branch (CS_HandleDriverLoad) bring-your-own-vulnerable-driver visibility.*
 
-## 4. Object callbacks (LSASS / credential-theft shield)
+### 4. Object callbacks (LSASS / credential-theft shield)
 
 The single most security-relevant callback what stops **mimikatz-style `OpenProcess(PROCESS_VM_READ, lsass)`** dumping.
 
@@ -485,7 +485,7 @@ CS_CheckHandleAccess(type, targetProc, access):
 
 **Blind spots:** the entire filter is gated on `ExGetPreviousMode() == UserMode`  a **kernel-mode** actor opening a handle is not filtered here. `opInfo->Flags & 1` (kernel handles) skip it. Altitude ordering games. Static masks.
 
-## 5. Registry
+### 5. Registry
 
 Catches persistence (Run keys), defense tampering, credential access via hives.
 
@@ -515,13 +515,13 @@ CS_RegistryCallback(ctx, NotifyClass, Arg2):
 
 *the recursion-guarded dispatch: KeSetKernelStackSwapEnable(0) pins the stack, guard blocks the sensor’s own registry access from re-entering.*
 
-# Section 4 The Network Inspector (WFP)
+## Section 4 The Network Inspector (WFP)
 
 *Binary: **CSAgent.sys***
 
 csagent.sys embeds a full **Windows Filtering Platform (WFP)** engine  connection visibility, DNS/telemetry, and the ability to **kill C2 traffic**. Imports: `fwpkclnt.sys` (53 fns) + `NETIO.SYS`.
 
-## The WFP building blocks
+### The WFP building blocks
 
 | Plane | APIs | Purpose |
 | --- | --- | --- |
@@ -534,7 +534,7 @@ csagent.sys embeds a full **Windows Filtering Platform (WFP)** engine  connectio
 
 Not just a monitor  provider + sublayers + filters + callouts + injection + its own socket stack. Firewall-grade.
 
-## 1. Two filtering engines
+### 1. Two filtering engines
 
 **Walk:** `CS_RegisterCallouts_Eng1` (0x14020DE50) and `CS_RegisterCallouts_Eng2` (0x14021E738)  near-identical loops registering callouts against two engine handles:
 
@@ -547,7 +547,7 @@ Both draw callout descriptors from the same global table (`g_CalloutTable` 0x140
 
 *CS_RegisterCallouts_Eng1/Eng2: near-identical loops registering callouts against the two WFP engine handles from a shared callout table.*
 
-### The callout GUIDs (a real fingerprint)
+#### The callout GUIDs (a real fingerprint)
 
 ```
 prefix qword  0x4838FD4EC5996155  (shared by most callouts)
@@ -561,7 +561,7 @@ Stable **host/network fingerprint**  `netsh wfp show state` and match these keys
 
 *the callout GUIDs (shared prefix 0x4838FD4EC5996155) a stable host/network fingerprint you can match in `netsh wfp show state`.*
 
-## 2. Connection tracking  `CS_FlowEstablishClassify` (0x1400B5DF0)
+### 2. Connection tracking  `CS_FlowEstablishClassify` (0x1400B5DF0)
 
 When the ALE “flow established” layer fires, this builds a **per-flow tracking record**:
 
@@ -590,7 +590,7 @@ CS_FlowEstablishClassify(adapterCtx, layerData, numLayers, flowId, ...):
 
 Because the record is associated as flow context, the stream/transport classify callbacks receive it on every packet  accumulating per-connection state (bytes, direction, timing), correlating to the owning **process** (PID from the ALE layers), and handing payloads to DPI *with* connection identity attached. Connection-oriented, not stateless packet filtering.
 
-## 3. The action side  injection & connection kill
+### 3. The action side  injection & connection kill
 
 **Walk:** `CS_InjectTransportPacket` (0x1401D4260)  the transport/stream injector.
 
@@ -616,7 +616,7 @@ Inject a **TCP RST/FIN** into a flagged flow → connection dies (C2 kill). Or i
 
 *the protocol branch: proto == 6 (TCP) → FwpsStreamInjectAsync0, else FwpsInjectTransportSendAsync1 the connection-kill primitive.*
 
-### Killing tracked connections  `CS_KillFlaggedFlows` (0x1401D108C)
+#### Killing tracked connections  `CS_KillFlaggedFlows` (0x1401D108C)
 
 When the engine flags flows for termination:
 
@@ -635,19 +635,19 @@ CS_KillFlaggedFlows(ctx):
 
 *CS_KillFlaggedFlows walks tracked flows in bounded batches and calls CS_ResetFlow → injects a TCP reset. This is how C2 gets killed.*
 
-## 4. The sensor’s own network stack (WSK)
+### 4. The sensor’s own network stack (WSK)
 
 csagent is also a WSK **client** (`WskRegister`), plus NETIO topology calls (`GetIpForwardTable2`, `GetIpNetTable2`, `GetIfEntry2`). It can open its own kernel sockets (cloud comms / sinkhole from ring-0) and enumerate/watch network topology (interfaces, routes, ARP)  noticing rogue VPNs or new adapters.
 
 **Network artifacts:** WFP provider + 2 sublayers + many callouts (`netsh wfp show state`), pool tags `CSFR` (tracked flows) and `PdPp` (injected buffers), injection handles, WSK registration.
 
-# Section 5  The File System Minifilter (FLTMGR)
+## Section 5  The File System Minifilter (FLTMGR)
 
 *Binary: **CSAgent.sys***
 
 The last major detection class  file **create/open, write, delete, rename, execution-mapping**. Core of ransomware detection, dropper detection, file-based IOC matching.
 
-## 1. Registration  `CS_RegisterMinifilter` (0x1403630B0)
+### 1. Registration  `CS_RegisterMinifilter` (0x1403630B0)
 
 ```c
 CS_RegisterMinifilter(state):
@@ -665,7 +665,7 @@ Runs under a critical region + state machine (`dword_140515008`: 1=unregistered,
 
 the minifilter registration, guarded by a state machine
 
-## 2. The operation table  what’s watched
+### 2. The operation table  what’s watched
 
 The `OperationRegistration` array at `0x1402B4880` hooks **12 IRP major functions**:
 
@@ -690,7 +690,7 @@ Near-total file-system coverage. Most security-relevant: `SET_INFORMATION` (dele
 
 12 IRP majors hooked  near-total file-system visibility
 
-## 3. The callback pattern  thin trace shim → real handler
+### 3. The callback pattern  thin trace shim → real handler
 
 Every pre-callback is the same shape (here `CS_FltPreCreate`, 0x1403622A0):
 
@@ -712,7 +712,7 @@ The handler resolves the **normalized file path** (via `FLT_FILE_NAME_INFORMATIO
 
 **File artifacts:** registered minifilter + altitude (`fltmc filters`), per-volume instances (`fltmc instances`), ETW/debug trace (bit `& 2`, usually off).
 
-# Section 6 cspcm4.sys, the Pinned Code Module
+## Section 6 cspcm4.sys, the Pinned Code Module
 
 *Binary: **cspcm4.sys** (imagebase `0x180000000`)*
 
@@ -726,7 +726,7 @@ exports:     ordinals 800–806 + DllInitialize(807) + DllUnload(808)
 imports:     ntoskrnl only  Ex/Ke/Rtl/Mm. No FLTMGR, no crypto, no network.
 ```
 
-## 1. DllInitialize  the rendezvous
+### 1. DllInitialize  the rendezvous
 
 **Walk:** `DllInitialize` (0x180001470). The whole design in one function.
 
@@ -762,7 +762,7 @@ named-callback singleton: first loader owns the context, others rendezvous
 
 the actual ‘pinned’ 4 KB code page being copied into resident context.
 
-## 2. The exported ABI (ordinals 800–806)
+### 2. The exported ABI (ordinals 800–806)
 
 | Ord | Renamed | Purpose |
 | --- | --- | --- |
@@ -793,7 +793,7 @@ cspcm4’s inter-module callback registry  16 slots
 
 the sensor’s APC-injection primitive lives here.
 
-## 3. The 6 embedded SHA-1 strings
+### 3. The 6 embedded SHA-1 strings
 
 `.rdata` holds **six 40-char SHA-1 hex strings** collected into a pointer array at `0x1800044E0`. Honest note: in this module the array has **no direct code xref**  nothing in cspcm4’s `.text` reads it. That implies the strings are **identity/allowlist data consumed elsewhere** (read via the pinned page by csagent, or matched by higher-level integrity logic). They look exactly like an **allowlist of trusted module SHA-1s**  but the comparison isn’t performed here.
 
@@ -803,7 +803,7 @@ embedded SHA-1 allowlist  data only, compared by the consumer, not here.
 
 **Reframe of the anti-tamper picture:** cspcm4 is *infrastructure*, not an active guard. No code here watches csagent’s memory or re-verifies it at runtime. Patching `CS_IsSensorEnabled`→1 in csagent is **not** stopped by cspcm4. The real tamper-resistance lives in the user-mode service + ELAM/early-launch, PPL on `CSFalconService.exe`, and whatever consumes the SHA-1 allowlist. cspcm4 is plumbing, not a wall.
 
-# Section 7  User-Mode Detection (`CSFalconService.exe`)
+## Section 7  User-Mode Detection (`CSFalconService.exe`)
 
 *Binary: **CSFalconService.exe** (SYSTEM, ~15.5 MB)*
 
@@ -828,7 +828,7 @@ CSFalconService.exe (SYSTEM)
 └── NGDP / ChannelFile ..... cloud comms: pull detection content, push telemetry
 ```
 
-## 1. DNS monitoring  `NetworkPolling::DnsResolver`
+### 1. DNS monitoring  `NetworkPolling::DnsResolver`
 
 `Observable<DnsResult>` pushes results to `IObserver<DnsResult>`s; `DnsQueryBatchActor` batches lookups. Correlates process/network events to **domain names** (kernel WFP sees IPs; this sees names), flags C2/known-bad domains.
 
@@ -838,7 +838,7 @@ CSFalconService.exe (SYSTEM)
 
 the DNS-monitoring subsystem (NetworkPolling::DnsResolver).
 
-## 2. PowerShell / script inspection  AMSI provider
+### 2. PowerShell / script inspection  AMSI provider
 
 Registry: `SOFTWARE\Microsoft\AMSI\Providers`. **CrowdStrike registers itself as an AMSI provider**  its scan callback receives every script buffer *decoded*, the moment it’s about to execute. Catches obfuscated PowerShell, fileless/in-memory scripts, LOLBin abuse. This is why “just base64-encode your PowerShell” doesn’t evade  AMSI hands over the decoded script, not the encoded command line.
 
@@ -850,7 +850,7 @@ Registry: `SOFTWARE\Microsoft\AMSI\Providers`. **CrowdStrike registers itself as
 
 CrowdStrike registers as an AMSI provider  scripts arrive decoded.
 
-## 3. Browser monitoring  extensions + credentials
+### 3. Browser monitoring  extensions + credentials
 
 Policy keys `Software\Policies\Google\Chrome\ExtensionSettings` (+ allow/block, `NativeMessagingAllowlist`), Edge + Firefox equivalents, plus browser **User Data** paths where `Login Data`/`Cookies` live. Extension governance + **infostealer detection** (awareness of browser credential stores). Kernel Object callback stops LSASS dumping; this watches the *browser* stores.
 
@@ -860,11 +860,11 @@ Policy keys `Software\Policies\Google\Chrome\ExtensionSettings` (+ allow/block, 
 
 browser extension governance + credential-store monitoring.
 
-## 4. ZeroTrust Assessment
+### 4. ZeroTrust Assessment
 
 `%ProgramData%\CrowdStrike\ZeroTrustAssessment\data.zta`  a device posture/compliance score feeding conditional access. Trust scoring, a detection input (compromised/misconfigured device scores low).
 
-## 5. Identity Protection  the big user-mode engine
+### 5. Identity Protection  the big user-mode engine
 
 Largest user-mode subsystem, behind the RPC server. `EndpointQueryActor`/`EndpointServer` answer endpoint-enrichment queries over the **`CsIntegRpcServer`** RPC interface (UUID `88F4E894-942A-40D8-BA06-89442D8DA600`). `IdpPolicyManagerActor` + `IValueProvider<...>` evaluate rules against identity/endpoint attributes; `IdpMfaUiManagerActor` drives the MFA prompt. Catches **identity attacks**  pass-the-hash, Kerberoasting fallout, anomalous NTLM, lateral movement  and can force step-up MFA.
 
@@ -876,11 +876,11 @@ Falcon Identity Threat Detection  the endpoint-side actors.
 
 the CsIntegration EndpointServer  the RPC handler implementation.
 
-## 6. ETW consumption + cloud content
+### 6. ETW consumption + cloud content
 
 `EtwConsumer@ETW` (`OpenTraceW`, `ProcessTrace`) consumes OS ETW providers to enrich telemetry. **NGDP / ChannelFile** (`ODSChannelFileActor`, `ChannelFileUpdated`) downloads **channel files**  detection content/policy/IOC updates  via WinHTTP and applies them at runtime. Same channel-file mechanism famous from July 2024. Cloud transport = WinHTTP.
 
-## 7. The IPC architecture (and the trust model)
+### 7. The IPC architecture (and the trust model)
 
 - **Named pipes:** `\\.\pipe\CrowdStrike\`, `\\.\pipe\CS\`.
 - **RPC:** `CsIntegRpcServer` on `ncalrpc`, `RPC_IF_ALLOW_SECURE_ONLY`, `RpcServerRegisterAuthInfoW` (NTLM/Negotiate), + a security callback requiring `PKT_PRIVACY`.
@@ -897,7 +897,7 @@ the per-call gate  checks transport auth level, **not caller identity** (authent
 
 The security model is **“authenticated + encrypted transport”**  it verifies the channel is secure and authenticates the caller, but in this callback does not restrict *which* users may call.
 
-# Section 8  The Decision Map (how a verdict routes)
+## Section 8  The Decision Map (how a verdict routes)
 
 *Binary: **CSAgent.sys***
 
@@ -905,7 +905,7 @@ We’ve seen every place the sensor *sees* you. Now: when an event is built, how
 
 ![image.png](/assets/img/csfalcon/image-60.png)
 
-## The event is a C++-style object
+### The event is a C++-style object
 
 The one vtable that matters is at `event+32`. Everything downstream talks through two calls: `CS_EventGetId` (event sequence ID) and `CS_EventGetField` (0x140378F80)  a big `switch(selector)` returning/lazily-computing a field. The `72 / 6 / 10 / 5186` numbers are **method selectors** on this object.
 
@@ -913,7 +913,7 @@ The one vtable that matters is at `event+32`. Everything downstream talks throug
 
 the object’s method table decoded.
 
-## Where detection ACTUALLY fires  selector 72
+### Where detection ACTUALLY fires  selector 72
 
 ```c
 case 72:
@@ -933,18 +933,18 @@ That indirect call is the actual **match-against-cloud-rules** call. The matcher
 
 where ‘is this malware?’ gets answered.
 
-## The hash/sig gate  and the bypass it creates
+### The hash/sig gate  and the bypass it creates
 
 Full rule matching (`5186`) only runs when **both** the image hash and the Authenticode signature resolved. If either fails, the sensor logs error 14 and *skips* the deep match. Anything that makes hash-or-signature resolution fail (unreadable/locked image, resolution race during spin-up) drops the process into the “incomplete data” path with a weaker verdict.
 
-## The kill write-back
+### The kill write-back
 
 ```c
 if ( (BYTE12(v42) & 2) != 0 )   // "block" flag set by the engine
     *v39 = DWORD2(v41);         // write verdict NTSTATUS to caller's out-param
 ```
 
-- `v39` is the same value copied into **`CreateInfo->CreationStatus` (+64)**. Negative NTSTATUS there = Windows aborts process creation. Block chain: **engine sets bit 1 → verdict copied → written to CreationStatus → process never runs.h**
+- `v39` is the same value copied into **`CreateInfo->CreationStatus` (+64)**. Negative NTSTATUS there = Windows aborts process creation. Block chain: **engine sets bit 1 → verdict copied → written to CreationStatus → process never runs.**
 
 ![image.png](/assets/img/csfalcon/image-63.png)
 
@@ -952,7 +952,7 @@ if ( (BYTE12(v42) & 2) != 0 )   // "block" flag set by the engine
 
 verdict ⇒ block chain
 
-## The injection / remote-thread tail
+### The injection / remote-thread tail
 
 If not blocked, dispatch checks *who created it*:
 
@@ -973,13 +973,13 @@ How CrowdStrike catches **process hollowing / CreateRemoteThread launches**  the
 
 the injection-detection layer.
 
-# Section 9  The Brain (how the verdict is actually made)
+## Section 9  The Brain (how the verdict is actually made)
 
 *Binary: **CSAgent.sys***
 
 Section 8 traced the event to a single call  selector 72 on the event object  and stopped. This section opens that door. It’s the most architecturally important thing in the whole teardown, and it explains the July-2024 incident.
 
-## The short version
+### The short version
 
 **The detection rules are not in the driver.** `csagent.sys` is a generic **event-collection and dispatch framework**. The thing that decides a verdict  the “detection engine”  is a separate object **loaded into the driver at runtime** from CrowdStrike **content** (channel files from the cloud). The driver holds it in one global pointer, `g_DetectionEngine`, and calls through a vtable. Update the content, and detection behavior changes with **no change to the sensor binary**.
 
@@ -993,7 +993,7 @@ CS_EventGetField(event, 72) ──► engine->vtable[+16](engine, 72, hash, sig,
                                 verdict ──► block / kill / allow / telemetry
 ```
 
-## 1. The engine is registered at runtime, not compiled in
+### 1. The engine is registered at runtime, not compiled in
 
 **Walk:** `CS_SetDetectionEngine` (0x140378360).
 
@@ -1014,7 +1014,7 @@ The engine arrives as a fully-formed **object** via the magic command pair **`(1
 
 the detection engine is *installed at runtime*, not compiled in.
 
-## 2. How the verdict call fires
+### 2. How the verdict call fires
 
 ```c
 case 72:                                       // in CS_EventGetField (0x140378F80)
@@ -1032,7 +1032,7 @@ case 72:                                       // in CS_EventGetField (0x140378F
 
 the actual malware decision  a vtable call into cloud-loaded content.
 
-## 3. Why this architecture matters
+### 3. Why this architecture matters
 
 - **Cloud-updatable detection.** New IOCs/rules/signatures ship as **channel files** → a new engine object pushed via `CS_SetDetectionEngine`. Detection improves with **no sensor upgrade**.
 - **The sensor binary is nearly rule-free.** Reversing csagent tells you *how events are collected and how the engine is called*  but **not what triggers a detection**, because those rules live in encrypted cloud content. A deliberate limit on what static analysis can reveal.
@@ -1040,7 +1040,7 @@ the actual malware decision  a vtable call into cloud-loaded content.
 
 **Mental model:** `csagent.sys` = eyes + hands (see events, apply verdicts); the loaded content engine = the brain (decide). The brain is swappable, cloud-delivered, and absent from the binary.
 
-# Section 10  Blind Spots & Evasion Seams
+## Section 10  Blind Spots & Evasion Seams
 
 *Synthesis  structural observations from the code, not tested exploits. Reuse earlier screenshots (O1/O2, W1, E1, R1).*
 
@@ -1061,11 +1061,11 @@ Every seam the teardown surfaced, collected in one place:
 | 11 | **Content-driven = binary can’t reveal rules** | `g_DetectionEngine` (Section 9) | Evasion by “reading the binary for the rule” doesn’t work  the rule isn’t there. You’d need the decrypted channel content. The *framework gates* are in the binary; the *rules* aren’t. |
 | 12 | **In-kernel parsers on attacker data** | PE headers (I2), stream payloads, file-name info | Parse/allocation bugs here would be high-value  the memory-safety attack surface. |
 
-## So end to end
+### So end to end
 
 ![image.png](/assets/img/csfalcon/7269dad8-84af-4cbe-9a7e-a3e9c1590c74.png)
 
-# Appendix  Function Rename Map
+## Appendix  Function Rename Map
 
 **CSAgent.sys**
 
