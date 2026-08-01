@@ -1,5 +1,5 @@
 ---
-title: "Inside the Falcon — How CrowdStrike Catches You"
+title: "Inside the Falcon How CrowdStrike Catches You"
 date: 2026-08-01 00:00:00 +0200
 categories: [Red Team, EDR]
 tags: [crowdstrike, falcon, edr, edr-internals, reverse-engineering, kernel-driver, minifilter, wfp, kernel-callbacks, csagent, cspcm4, detection-engine, lsass, amsi, identity-protection, byovd, process-injection, mitre-attack, red-team, blue-team]
@@ -7,7 +7,7 @@ description: "A full reverse-engineering teardown of the CrowdStrike Falcon sens
 toc: true
 image:
   path: /assets/img/csfalcon/BackGround.png
-  alt: "Inside the Falcon — How CrowdStrike Catches You"
+  alt: "Inside the Falcon How CrowdStrike Catches You"
 ---
 
 # Section 1  The Components
