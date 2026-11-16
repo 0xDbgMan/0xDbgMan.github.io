@@ -6,7 +6,7 @@ tags: [red-team, persistence, windows, linux, macos, active-directory, cloud, ku
 description: ""
 toc: true
 image:
-  path: /assets/img/persistence/persistence-banner.png
+  path: /assets/img/covers/persistence.webp
   alt: Persistence - The Art of Staying In
 ---
 

@@ -1,0 +1,46 @@
+---
+layout: default
+---
+<section class="wrap hero">
+  <div>
+    <h1>Don't worry, I can also <mark>debug</mark> <s>u</s> your kernel.</h1>
+    <p>Mostly kernel debugging, security research and red team stuff. If the debugger's closed, I'm probably gaming.</p>
+  </div>
+  <div class="id">
+    <img src="{{ site.avatar | relative_url }}" alt="DbgMan avatar">
+    <div class="row"><span>NAME</span><b>DbgMan</b></div>
+    <div class="row"><span>ROLE</span><span>Red Team / Low-Level</span></div>
+    <div class="row"><span>ZERO-DAY</span><span>1</span></div>
+    <div class="row"><span>TARGET</span><b>PWN2OWN</b></div>
+  </div>
+</section>
+
+<div class="wrap">
+{%- assign posts = site.posts -%}
+{%- assign f = posts.first -%}
+{%- if f -%}
+  {%- include dbg-meta.html post=f -%}
+  <a class="big" href="{{ f.url | relative_url }}">
+    <div class="im"><img src="{{ p_img | relative_url }}" alt="{{ f.title | escape }}"><span class="sticker">NEW DROP!</span></div>
+    <div class="tx"><span class="cat">{{ p_cat }}</span><h2>{{ f.title }}</h2><p>{{ p_desc }}</p>
+      <div class="more"><span>{{ f.date | date: '%d %b %Y' }} / {{ p_mins }} MIN</span><span>READ →</span></div></div>
+  </a>
+
+  {%- assign cats = '' | split: '' -%}
+  {%- for p in posts offset:1 -%}{%- assign c = p.categories | last | default: 'Research' -%}{%- unless cats contains c -%}{%- assign cats = cats | push: c -%}{%- endunless -%}{%- endfor -%}
+  <div class="sh"><h3>ALL_RESEARCH</h3>
+    <div class="filters" id="flt"><button class="on" data-c="*">ALL</button>{% for c in cats %}<button data-c="{{ c | slugify }}">{{ c }}</button>{% endfor %}</div>
+  </div>
+  <div class="grid" id="grid">
+  {%- for p in posts offset:1 -%}
+    {%- include dbg-meta.html post=p -%}
+    <a class="c" href="{{ p.url | relative_url }}" data-c="{{ p_cat | slugify }}">
+      <div class="im"><img src="{{ p_img | relative_url }}" alt="{{ p.title | escape }}" loading="lazy"></div>
+      <div class="bd"><span class="cat">{{ p_cat }}</span><h4>{{ p.title }}</h4><p>{{ p_desc }}</p>
+        <div class="ft"><span>{{ p.date | date: '%d %b %Y' }}</span><span>{{ p_mins }} MIN →</span></div></div>
+    </a>
+  {%- endfor -%}
+  </div>
+  <p class="empty" id="empty">// only the featured post lives here</p>
+{%- endif -%}
+</div>

@@ -1,12 +1,12 @@
 ---
-title: "EDR Tradecraft: Internals, Detection, Evasion & Advanced Researchg"
+title: "EDR Tradecraft: Internals, Detection, Evasion & Advanced Research"
 date: 2026-05-03 00:00:00 +0200
 categories: [Red Team, EDR]
 tags: [edr, edr-internals, kernel-driver, minifilter, etw, etw-ti, kernel-callbacks, evasion, syscalls, sysplant, syswhispers4, acheron, freshycalls, recycledgate, sleep-mask, ekko, foliage, zilean, stack-spoofing, silentmoonwalk, vulcan-raven, dreamwalkers, byovd, hvci, ppl, intel-tdt, amsi, veh, hardware-breakpoint, mitre-attack, red-team, blue-team]
 description: "Technical reference on modern EDR architecture, detection mechanisms, evasion techniques, and reverse-engineering methodology. Covers kernel callback APIs, file-system mini-filters, ETW providers, the four detection-engine model, syscall gates (FreshyCalls, RecycledGate, SysWhispers4, Acheron, Sysplant), sleep obfuscation (Ekko, FOLIAGE, DreamWalkers), call-stack spoofing (SilentMoonwalk, VulcanRaven), ETW-TI hardware-breakpoint bypass, patchless AMSI bypass via VEH, BYOVD against the vulnerable-driver blocklist, and the eight-phase EDR research methodology."
 toc: true
 image:
-  path: /assets/img/edr-internals/backGround.png
+  path: /assets/img/covers/edr.webp
   alt: EDR Tradecraft  A Field Manual
 ---
 

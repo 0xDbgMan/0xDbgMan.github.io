@@ -1,0 +1,12 @@
+---
+layout: default
+---
+{%- assign sorted = site.tags | sort -%}
+<div class="wrap">
+  <div class="page-head"><h1><mark>Tags</mark></h1><p>{{ sorted | size }} tags.</p></div>
+  <div class="chips">
+  {%- for t in sorted -%}{%- assign ts = t[0] | slugify | url_encode -%}
+    <a href="{{ '/tags/' | append: ts | append: '/' | relative_url }}">#{{ t[0] }}<i>{{ t[1] | size }}</i></a>
+  {%- endfor -%}
+  </div>
+</div>

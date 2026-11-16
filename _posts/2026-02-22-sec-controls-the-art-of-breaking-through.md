@@ -6,7 +6,7 @@ tags: [red-team, evasion, windows-defender, applocker, wdac, credential-guard, e
 description: ""
 toc: true
 image:
-  path: /assets/img/sec-controls/sec-controls-banner.png
+  path: /assets/img/covers/sec-controls.webp
   alt: Sec Controls - The Art of Breaking Through
 ---
 

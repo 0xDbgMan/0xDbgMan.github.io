@@ -1,0 +1,12 @@
+---
+layout: default
+---
+{%- assign sorted = site.categories | sort -%}
+<div class="wrap">
+  <div class="page-head"><h1><mark>Categories</mark></h1><p>{{ sorted | size }} categories.</p></div>
+  <div class="chips">
+  {%- for c in sorted -%}{%- assign cs = c[0] | slugify | url_encode -%}
+    <a href="{{ '/categories/' | append: cs | append: '/' | relative_url }}">{{ c[0] }}<i>{{ c[1] | size }}</i></a>
+  {%- endfor -%}
+  </div>
+</div>

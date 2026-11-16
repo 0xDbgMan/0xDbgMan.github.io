@@ -1,0 +1,7 @@
+---
+layout: default
+---
+<div class="wrap">
+  <div class="page-head"><h1>Tag: <mark>#{{ page.title }}</mark></h1><p>{{ page.posts | size }} posts. <a href="{{ '/tags/' | relative_url }}">← all tags</a></p></div>
+  {% include dbg-list.html posts=page.posts %}
+</div>

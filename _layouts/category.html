@@ -1,0 +1,7 @@
+---
+layout: default
+---
+<div class="wrap">
+  <div class="page-head"><h1>Category: <mark>{{ page.title }}</mark></h1><p>{{ page.posts | size }} posts. <a href="{{ '/categories/' | relative_url }}">← all categories</a></p></div>
+  {% include dbg-list.html posts=page.posts %}
+</div>

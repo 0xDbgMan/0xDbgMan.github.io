@@ -6,7 +6,7 @@ tags: [red-team, initial-access, phishing, spearphishing, html-smuggling, evilgi
 description: ""
 toc: true
 image:
-  path: /assets/img/initial-access/initial-access.png
+  path: /assets/img/covers/initial-access.webp
   alt: Red Team Initial Access Kill Chain
 ---
 

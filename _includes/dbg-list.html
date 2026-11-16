@@ -1,0 +1,12 @@
+{%- comment -%} Year-grouped post list. Pass posts=... {%- endcomment -%}
+{%- assign last_year = '' -%}
+{%- for p in include.posts -%}
+  {%- assign y = p.date | date: '%Y' -%}
+  {%- if y != last_year -%}
+    {%- unless forloop.first -%}</div>{%- endunless -%}
+    <div class="year">{{ y }}</div><div class="list">
+    {%- assign last_year = y -%}
+  {%- endif -%}
+  <a href="{{ p.url | relative_url }}"><span class="d">{{ p.date | date: '%d %b' }}</span><b>{{ p.title }}</b><span class="cat">{{ p.categories | last }}</span></a>
+  {%- if forloop.last -%}</div>{%- endif -%}
+{%- endfor -%}

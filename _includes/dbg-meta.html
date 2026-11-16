@@ -1,0 +1,8 @@
+{%- comment -%} Sets: p_cat, p_img, p_desc, p_mins for include.post {%- endcomment -%}
+{%- assign p = include.post -%}
+{%- assign p_cat = p.categories | last | default: 'Research' -%}
+{%- assign p_img = p.image.path | default: p.image | default: site.avatar -%}
+{%- assign p_desc = p.description | strip -%}
+{%- if p_desc == '' -%}{%- assign p_desc = p.content | replace: '<', ' <' | strip_html | normalize_whitespace | truncate: 170 -%}{%- endif -%}
+{%- assign p_words = p.content | strip_html | number_of_words -%}
+{%- assign p_mins = p_words | divided_by: 200 | plus: 1 -%}

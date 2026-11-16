@@ -1,0 +1,12 @@
+{%- assign u = page.url -%}
+<header class="site-head"><div class="wrap">
+  <a class="logo" href="{{ '/' | relative_url }}">DBGMAN</a>
+  <nav class="site-nav" id="site-nav">
+    <a href="{{ '/' | relative_url }}"{% if u == '/' or page.layout == 'post' %} class="on"{% endif %}>Research</a>
+    <a href="{{ '/categories/' | relative_url }}"{% if u contains '/categories/' %} class="on"{% endif %}>Categories</a>
+    <a href="{{ '/tags/' | relative_url }}"{% if u contains '/tags/' %} class="on"{% endif %}>Tags</a>
+    <a href="{{ '/archives/' | relative_url }}"{% if u contains '/archives/' %} class="on"{% endif %}>Archives</a>
+    <a href="{{ '/about/' | relative_url }}"{% if u contains '/about/' %} class="on"{% endif %}>About</a>
+  </nav>
+  <button class="burger" id="burger" aria-label="Menu">MENU</button>
+</div></header>

@@ -1,0 +1,30 @@
+---
+layout: default
+---
+{%- include dbg-meta.html post=page -%}
+{%- assign words = content | strip_html | number_of_words -%}
+{%- assign mins = words | divided_by: 200 | plus: 1 -%}
+<div class="wrap">
+<article class="art">
+  <div class="hd">
+    <span class="cat">{{ page.categories | join: ' / ' }}</span>
+    <h1>{{ page.title }}</h1>
+    <div class="meta">
+      <span>{{ page.date | date: '%d.%m.%Y' }}</span><span>{{ mins }} MIN</span>
+      {%- for t in page.tags limit:8 -%}{%- assign ts = t | slugify | url_encode -%}<a href="{{ '/tags/' | append: ts | append: '/' | relative_url }}">#{{ t }}</a>{%- endfor -%}
+    </div>
+  </div>
+  {%- if page.image -%}<img class="cover" src="{{ p_img | relative_url }}" alt="{{ page.title | escape }}">{%- endif -%}
+  <div class="body{% if page.toc == false %} no-toc{% endif %}" id="post-body">
+    <div class="prose" id="prose">
+{{ content }}
+    </div>
+    {%- unless page.toc == false -%}<aside class="toc" id="toc"><div class="t">ON THIS PAGE</div><ol id="toc-list"></ol></aside>{%- endunless -%}
+  </div>
+</article>
+
+<nav class="post-nav">
+  {%- if page.previous -%}<a href="{{ page.previous.url | relative_url }}"><small>← OLDER</small><b>{{ page.previous.title }}</b></a>{%- else -%}<span></span>{%- endif -%}
+  {%- if page.next -%}<a class="nx" href="{{ page.next.url | relative_url }}"><small>NEWER →</small><b>{{ page.next.title }}</b></a>{%- endif -%}
+</nav>
+</div>

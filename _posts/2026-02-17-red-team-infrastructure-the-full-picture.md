@@ -6,7 +6,7 @@ tags: [red-team, c2, redirector, cobalt-strike, sliver, infrastructure, cdn, aws
 description: ""
 toc: true
 image:
-  path: /assets/img/red-team-infra/red-team-infra.png
+  path: /assets/img/covers/red-team-infra.webp
   alt: Red Team Infrastructure Architecture
 ---
 

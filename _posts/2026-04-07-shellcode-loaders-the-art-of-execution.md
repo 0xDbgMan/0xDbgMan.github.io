@@ -6,7 +6,7 @@ tags: [shellcode, loaders, crystal-palace, reflective-dll, pic, evasion, red-tea
 description: ""
 toc: true
 image:
-  path: /assets/img/shellcode-loaders/loaders-banner.png
+  path: /assets/img/covers/loaders.webp
   alt: Shellcode Loaders — The Art of Execution
 ---
 
