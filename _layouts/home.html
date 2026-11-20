@@ -28,7 +28,7 @@ layout: default
 
   {%- assign cats = '' | split: '' -%}
   {%- for p in posts offset:1 -%}{%- assign c = p.categories | last | default: 'Research' -%}{%- unless cats contains c -%}{%- assign cats = cats | push: c -%}{%- endunless -%}{%- endfor -%}
-  <div class="sh"><h3>ALL_RESEARCH</h3>
+  <div class="sh"><h3>ALL RESEARCH</h3>
     <div class="filters" id="flt"><button class="on" data-c="*">ALL</button>{% for c in cats %}<button data-c="{{ c | slugify }}">{{ c }}</button>{% endfor %}</div>
   </div>
   <div class="grid" id="grid">

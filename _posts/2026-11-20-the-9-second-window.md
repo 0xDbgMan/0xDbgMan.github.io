@@ -232,34 +232,34 @@ When you press power, five phases execute in strict order:
 
 The CPU wakes at a hardcoded address in flash ROM. The firmware runs its own pipeline:
 
-- **SEC** — Security phase. Validates firmware integrity. No RAM yet — uses CPU cache as temporary memory.
-- **PEI** — Pre-EFI Init. Finds and initializes the memory controller. After this, real RAM works.
-- **DXE** — Driver Execution. Loads firmware drivers: storage, graphics, USB.
-- **BDS** — Boot Device Selection. Reads NVRAM boot variables, finds the boot disk, loads `bootmgfw.efi` from the EFI System Partition.
+- **SEC** Security phase. Validates firmware integrity. No RAM yet, uses CPU cache as temporary memory.
+- **PEI** Pre-EFI Init. Finds and initializes the memory controller. After this, real RAM works.
+- **DXE** Driver Execution. Loads firmware drivers: storage, graphics, USB.
+- **BDS** Boot Device Selection. Reads NVRAM boot variables, finds the boot disk, loads `bootmgfw.efi` from the EFI System Partition.
 
 On legacy BIOS systems: MBR → PBR → `bootmgr` instead.
 
 **2- Boot Manager**
 
-`bootmgfw.efi` reads the **BCD store** (Boot Configuration Data) — a binary registry hive that replaced `boot.ini`. It lists installed operating systems. If `hiberfil.sys` has a valid memory set, it launches `winresume.exe` to restore the saved session. Otherwise, it launches `winload.efi`.
+`bootmgfw.efi` reads the **BCD store** (Boot Configuration Data) a binary registry hive that replaced `boot.ini`. It lists installed operating systems. If `hiberfil.sys` has a valid memory set, it launches `winresume.exe` to restore the saved session. Otherwise, it launches `winload.efi`.
 
 **3-OS Loader (winload.efi)**
 
 This is where real work starts. Before the kernel gets a single instruction, `winload`:
 
 1. Loads `ntoskrnl.exe` (the kernel) + `hal.dll` (Hardware Abstraction Layer)
-- Memory Manager — creates paged/nonpaged pools
-- Object Manager — builds kernel namespace (`\Device`, `\Driver`)
-- Process Manager — creates PID 0 (Idle) and PID 4 (System)
-- Security Reference Monitor — creates initial system token
+- Memory Manager creates paged/nonpaged pools
+- Object Manager builds kernel namespace (`\Device`, `\Driver`)
+- Process Manager creates PID 0 (Idle) and PID 4 (System)
+- Security Reference Monitor creates initial system token
 
 ![image.png](/assets/img/9second/b0308538-177d-42e5-bd82-8d15d95235c8.png)
 
-*1 — Driver Init:*
+*1  Driver Init:*
 
 - Calls `DriverEntry` for every BOOT_START driver (ordered by Load Order Groups)
 - Then loads and initializes SYSTEM_START drivers (`Start = 1`)
-- Then launches `smss.exe` — the first user-mode process
+- Then launches `smss.exe` the first user-mode process
 
 **4- User Mode**
 
@@ -293,10 +293,14 @@ Windows decides *when* each driver loads based on its `Start` registry value:
 | 1 | SYSTEM_START | During kernel 1 | ntoskrnl.exe |
 | 2 | AUTO_START | After Session 0 | services.exe |
 | 3 | DEMAND_START | On device plug / manual | PnP / SCM |
-| 4 | DISABLED | Never | — |
+| 4 | DISABLED | Never |  |
 
 Within BOOT_START, order is controlled by:
 
-- *ServiceGroupOrder* — ordered list of group names in the registry
-- **Group** value on each driver's service key — which group it belongs to
-- **Tag** value — ordering within each group (lower = first)
+- *ServiceGroupOrder* ordered list of group names in the registry
+- **Group** value on each driver's service key which group it belongs to
+- **Tag** value ordering within each group (lower = first)
+
+---
+
+The bug has been reported and accepted. They're working on a fix now :)
