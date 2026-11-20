@@ -216,9 +216,9 @@ The fix is straightforward: initialize `qword_1C0018760` with bit `0x400` set in
 
 ## Whos Run First?
 
-Btw here the end of blog but ill explain some arch in windows Internals 
+BTW, that's the end of the blog, but I'll explain a bit about Windows internals architecture.
 
-when the boot machine what realy dose ? i mean how the machine boot
+What actually happens when a machine boots? I mean, how does the boot process work?
 
 ### The Boot Chain
 
